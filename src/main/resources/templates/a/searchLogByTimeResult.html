@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>日志文件-时间筛选</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+
+    <!--时间选择插件-->
+    <link  th:href="@{/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css}" rel="stylesheet">
+    <!--日期选择插件-->
+    <link rel="stylesheet" th:href="@{/js/bootstrap-datepicker/bootstrap-datepicker3.min.css}">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+            <!-- 存放js用到的数据-->
+            <input  id="deleteLogId" name="deleteLogId" type="hidden">
+            <!-- 存放js用到的数据-->
+
+            <div class="container-fluid">
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> >  <a href="javascript:log(1)" style="color: #31708f">日志</a> > 时间筛选
+                </div>
+
+
+
+                <div  class="card">
+                    <div class="card-toolbar clearfix">
+                        <form class="pull-right search-bar" method="post" action="/admin/log/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0操作人 1描述   -->
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">用户</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchLogType(0)" data-field="email">用户</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchLogType(1)" data-field="license">描述</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchLogType(2)" data-field="license">类型</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >日志记录-筛选结果</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body" >
+
+
+                        <div id="choseTime" style="display: none">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-body">
+
+                                            <div class="input-daterange input-group">
+                                                <h5>根据日期</h5>
+                                                <input style="width: 30%" class="form-control js-datepicker m-b-10" type="text" id="byDataTime" name="example-datepicker" placeholder="yyyy-mm-dd" value="" data-date-format="yyyy-mm-dd" th:value="${time}" th:if="${ not (time == null)}" />
+                                                <button class="btn btn-default" type="submit"><i class="mdi mdi-keyboard-tab"></i></button>
+                                            </div>
+
+                                            <div class="input-daterange input-group">
+                                                <h5>根据时间范围</h5>
+                                                <input style="width: 30%" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" type="text" id="byDataTime1" name="example-daterange1" placeholder="从" th:value="${time1}" th:if="${ not (time1 == null)}">
+                                                <input style="width: 30%" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" type="text" id="byDataTime2" name="example-daterange2" placeholder="至" th:value="${time2}" th:if="${ not (time2 == null)}">
+                                                <button class="btn btn-default" type="submit"><i class="mdi mdi-keyboard-tab"></i></button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="table-responsive">
+
+                            <span th:if="${not log.getList().isEmpty()}">根据时间筛选的结果如下：</span><br><br>
+
+
+
+                            <table class="table table-bordered"  th:if="${not log.getList().isEmpty()}">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>时间</th>
+                                    <th>操作人</th>
+                                    <th>描述</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="top,num:${log.getList()}">
+                                    <td th:text="${num.index+1} ">序号</td>
+                                    <td th:text="${#dates.format(top.getTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                                    <td th:text="${top.getOperator()}">操作人</td>
+                                    <td th:text="${top.getOperate()}">描述</td>
+                                    <td>
+                                        <a th:href="'javascript:deleteLog('+${top.getId()}+')'" class="btn btn-xs btn-danger " data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <span th:if="${log.totalPage > 1}" style="float: right; margin-right: 30px;">共[[${log.totalCount}]]条记录&nbsp;&nbsp;共[[${log.totalPage}]]页&nbsp;&nbsp;
+              当前第[[${log.currentPage}]]页</span>
+
+                            <div  th:if="${log.getList().isEmpty()}" style="align-content: center">
+                                <br> <br> <br> <br><br> <br>
+                                <div class="alert alert-danger" role="alert" style="text-align:center">
+                                    <span>  未检索到有关信息！请检查输入是否正确，或者 <a th:href="'javascript:history.back(-1);'" class="alert-link">点击此处</a>返回上一页。
+                                </span>
+                                </div>
+                                <br> <br> <br> <br><br> <br>
+                             </div>
+
+                            </div>
+                        <ul class="pagination" style="float: right; margin-right: 30px;" th:if="${log.totalPage > 1}">
+
+                            <!-- 提交内容-->
+                            <input  id="pageType" type="hidden" th:value="${search}">
+
+                            <input  id="typeSearch" type="hidden" th:value="${type}">
+                            <input  id="keyWordSearch" type="hidden" th:value="${keyword}">
+
+                            <li><a th:href="'javascript:logSearchByTime(1)'">首页</a></li>
+                            <li th:class="${log.currentPage>1?'':'disabled'}"><span th:if="${log.currentPage==1}">上一页</span><a th:href="'javascript:logSearchByTime('+${log.currentPage-1}+')'" th:if="${log.currentPage>1}">上一页</a></li>
+                            <li th:if="${(log.currentPage-2)>=1}" ><a th:href="'javascript:logSearchByTime('+${log.currentPage-2}+')'" th:text="${log.currentPage-2}">1</a></li>
+                            <li th:if="${(log.currentPage-1)>=1}"><a th:href="'javascript:logSearchByTime('+${log.currentPage-1}+')'" th:text="${log.currentPage-1}">2</a></li>
+                            <li class="active"><a th:href="'javascript:logSearchByTime('+${log.currentPage}+')'" th:text="${log.currentPage}">3</a></li>
+                            <li th:if="${(log.currentPage+1)<=log.totalPage}"><a th:href="'javascript:logSearchByTime('+${log.currentPage+1}+')'" th:text="${log.currentPage+1}">4</a></li>
+                            <li th:if="${(log.currentPage+2)<=log.totalPage}"><a th:href="'javascript:logSearchByTime('+${log.currentPage+2}+')'" th:text="${log.currentPage+2}">5</a></li>
+                            <li th:class="${log.currentPage<log.totalPage?'':'disabled'}"><span th:if="${log.currentPage==log.totalPage}">下一页</span><a th:href="'javascript:logSearchByTime('+${log.currentPage+1}+')'" th:if="${log.currentPage<log.totalPage}">下一页</a></li>
+                            <li><a th:href="'javascript:logSearchByTime('+${log.totalPage}+')'">尾页</a></li>
+                        </ul>
+                        </div>
+<br><br><br><br>
+
+                    </div>
+            </div>
+
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+
+<!--时间选择插件-->
+<script type="text/javascript" th:src="@{/js/bootstrap-datetimepicker/moment.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-datetimepicker/locale/zh-cn.js}"></script>
+<!--日期选择插件-->
+<script type="text/javascript" th:src="@{/js/bootstrap-datepicker/bootstrap-datepicker.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js}"></script>
+</body>
+</html>

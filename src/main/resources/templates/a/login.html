@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>管理员登录页面</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+<link th:href="@{/css/style.min.css}" rel="stylesheet">
+<link th:href="@{/css/login.css}" rel="stylesheet">
+</head>
+  
+<body>
+<div class="row lyear-wrapper">
+  <div class="lyear-login">
+    <div class="login-center">
+      <div class="login-brand">
+        <i class="mdi mdi-account-card-details"></i>
+        <a href="/index">收费站后台管理系统</a>
+      </div>
+      <form action="/admin/index" method="post">
+        <div class="form-group has-feedback feedback-left">
+          <input type="text" placeholder="请输入您的用户名" class="form-control" name="username" id="username" />
+          <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+          <span style="color: #e74c3c" th:if="${not (tip1 == null)}">账号输入错误，请检查后再试！</span>
+        </div>
+        <div class="form-group has-feedback feedback-left">
+          <input type="password" placeholder="请输入密码" class="form-control" id="password" name="password" />
+          <span class="mdi mdi-lock form-control-feedback" aria-hidden="true"></span>
+          <span style="color: #e74c3c" th:if="${not (tip2 == null)}">密码输入错误，请检查后再试！</span>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-block btn-primary" type="submit" >立即登录</button>
+        </div>
+      </form>
+      <hr>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>收费站管理</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > 收费站管理
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+
+                        <!-- 搜索框-->
+                        <form class="pull-right search-bar" method="post" action="/admin/mail/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0标题 1内容  2发件人 -->
+
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">名称</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(0)" data-field="email">名称</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(1)" data-field="license">内容</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+
+
+                        <!-- xinzengshoufeizhan钮-->
+                        <div class="pull-right">&nbsp; <a class="btn btn-primary m-r-5 dropdown-toggle" href="#" data-toggle="modal" data-target="#addStation"><i class="mdi mdi-plus"></i> 新增</a> &nbsp;</div>
+                        <!-- 搜索框发消息按钮-结束-->
+
+
+
+                        <!--功能-->
+                        <div class="pull-right">&nbsp; <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                        </div>
+
+
+                        <!--功能结束-->
+
+
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >收费站信息</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive"  >
+
+
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+
+                                <div th:class="${num.index%2==0?'panel panel-cyan':'panel panel-primary'}" th:each="top,num:${stations.getList()}" th:if="${stations.getTotalPage() != 0}">
+                                    <div class="panel-heading" role="tab" id="headingTwo">
+                                        <h4 class="panel-title">
+                                            <a class="collapsed" role="button" th:text="${top.getName()}+'站'" data-toggle="collapse" data-parent="#accordion" th:href="'#panel-body-'+ ${num.index+1}" aria-expanded="false" aria-controls="collapseTwo">
+                                                第二回 孙兵部到关权理　狄元帅奉旨征西
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div th:id="'panel-body-'+${num.index+1}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="lable" aria-expanded="false" style="height: 0px;">
+                                        <div class="panel-body">
+                                            <span th:text="${top.getInterduce()}" ></span>
+                                            <a th:href="'javascript:stationDetails(\''+${top.getName()}+'\');'">更多信息</a></div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            <span style="float: right; margin-right: 30px;" th:if="${stations.totalPage > 1}" >共[[${stations.totalCount}]]条记录&nbsp;&nbsp;共[[${stations.totalPage}]]页&nbsp;&nbsp;
+              当前第[[${stations.currentPage}]]页</span>
+                            <br>
+                            <ul class="pagination" style="float: right; margin-right: 30px;" th:if="${stations.totalPage > 1}">
+                                <li><a th:href="'javascript:stationPage(1)'">首页</a></li>
+                                <li th:class="${stations.currentPage>1?'':'disabled'}"><span th:if="${stations.currentPage==1}">上一页</span><a th:href="'javascript:stationPage('+${stations.currentPage-1}+')'" th:if="${stations.currentPage>1}">上一页</a></li>
+                                <li th:if="${(stations.currentPage-2)>=1}" ><a th:href="'javascript:stationPage('+${stations.currentPage-2}+')'" th:text="${stations.currentPage-2}">1</a></li>
+                                <li th:if="${(stations.currentPage-1)>=1}"><a th:href="'javascript:stationPage('+${stations.currentPage-1}+')'" th:text="${stations.currentPage-1}">2</a></li>
+                                <li class="active"><a th:href="'javascript:stationPage('+${stations.currentPage}+')'" th:text="${stations.currentPage}">3</a></li>
+                                <li th:if="${(stations.currentPage+1)<=stations.totalPage}"><a th:href="'javascript:stationPage('+${stations.currentPage+1}+')'" th:text="${stations.currentPage+1}">4</a></li>
+                                <li th:if="${(stations.currentPage+2)<=stations.totalPage}"><a th:href="'javascript:stationPage('+${stations.currentPage+2}+')'" th:text="${stations.currentPage+2}">5</a></li>
+                                <li th:class="${stations.currentPage<stations.totalPage?'':'disabled'}"><span th:if="${stations.currentPage==stations.totalPage}">下一页</span><a th:href="'javascript:stationPage('+${stations.currentPage+1}+')'" th:if="${stations.currentPage<stations.totalPage}">下一页</a></li>
+                                <li><a th:href="'javascript:stationPage('+${stations.totalPage}+')'">尾页</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+
+</body>
+</html>

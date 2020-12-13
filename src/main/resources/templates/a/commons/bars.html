@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>bars</title>
+</head>
+<body>
+
+<div th:fragment="admin">
+<!--topbar 顶栏-->
+<header class="lyear-layout-header" >
+
+    <nav class="navbar navbar-default">
+        <div class="topbar">
+
+            <div class="topbar-left">
+                <div class="lyear-aside-toggler" data-toggle="tooltip" data-placement="bottom" title="菜单">
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                    <span class="lyear-toggler-bar"></span>
+                </div>
+                <span class="navbar-page-title"> 菜单 </span>
+            </div>
+
+            <ul class="topbar-right">
+                <li class="dropdown dropdown-profile">
+                    <a href="javascript:void(0)" data-toggle="dropdown">
+                        <img class="img-avatar img-avatar-48 m-r-10" th:src="@{/images/admin/admin.jpg}" alt="admin" />
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+
+                        <li> <a href="#" data-toggle="modal" data-target="#changepsk"><i class="mdi mdi-lock-outline"></i> 修改密码</a> </li>
+                        <li class="divider"></li>
+                        <li> <a href="/admin/exit"><i class="mdi mdi-logout-variant"></i> 退出登录</a> </li>
+                    </ul>
+                </li>
+
+
+                <li class="dropdown dropdown-skin">
+                    <span data-toggle="dropdown" class="icon-palette" aria-expanded="false"><i th:class="${session.notreadmessage.isEmpty()==true?'mdi mdi-email':'mdi mdi-email-alert'}"  data-toggle="tooltip" data-placement="left" title="消息"></i></span>
+                    <ul class="dropdown-menu dropdown-menu-right" data-stoppropagation="true">
+                        <li class="drop-title"><p><a href="javascript:mailBox(1,1)" style="color: #4d5259">消息列表</a> &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;  &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; <a href="javascript:mailBox(3,1)" style="color: #4d5259">我的信箱</a></p></li>
+                        <br>
+                        <li class="drop-skin-li clearfix" th:if="${session.notreadmessage.isEmpty()}">
+                        <span class="inverse">
+                            <br>
+
+                            <div class="alert alert-danger" role="alert" style="text-align:center">
+                                暂无未读消息
+                            </div>
+                                 <br>
+                        </span>
+                        </li>
+
+                        <li class="drop-skin-li clearfix" th:if="${not session.notreadmessage.isEmpty()}">
+                            <img style="float: left" th:src="@{/images/us/notRead.jpg}" class="img-avatar img-avatar-48 m-r-10">
+                        <span class="inverse" th:each="message,num:${session.notreadmessage}" th:if="${num.index <= 2}">
+                            <a th:href="'javascript:mailDetails('+${message.getId()}+')'">
+                        <p style="color: #0c0c0c" >标题：[[${message.getTitle()}]]</p>
+                        <p style="font-size: 10px;color: #0c0c0c " >时间:[[${#dates.format(message.getTime(), 'hh:mm')}]] 来自:[[${message.getrole()}]]</p>
+                            </a>
+                        <br>
+                        </span>
+                        </li>
+
+                        <li class="drop-skin-li clearfix" th:if="${session.notreadmessage.size() > 3}">
+                        <span class="inverse">
+
+                        <p style="color: #006cfa">&nbsp;&nbsp; &nbsp;&nbsp;<a href="javascript:mailBox(1,1)">查看更多...</a></p>
+
+                        </span>
+                        </li>
+
+                    </ul>                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+
+
+<!--左侧导航-->
+<aside class="lyear-layout-sidebar" >
+
+
+    <!-- logo -->
+    <div id="logo" class="sidebar-header">
+        <a href="/admin/index"><img src="" th:src="@{/images/admin/bglog.png}" title="后台管理" alt="后台管理"></a>
+    </div>
+    <div class="lyear-layout-sidebar-scroll">
+
+        <nav class="rsideba-main">
+            <ul class="nav nav-drawer">
+                <!--首页 -->
+                <li class="nav-item active"> <a href="/admin/index"><i class="mdi mdi-home"></i> 后台首页</a> </li>
+
+                <!-- 基础功能 -->
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="javascript:void(0)"><i class="mdi mdi-email"></i>信件管理</a>
+                    <ul class="nav nav-subnav">
+                        <li> <a  href="" data-toggle="modal" data-target="#barSendMessage">发信息</a> </li>
+                        <li> <a href="javascript:mailBox(1,1)">未读信件</a> </li>
+                        <li> <a href="javascript:mailBox(2,1)">收件箱</a> </li>
+                        <li> <a href="javascript:mailBox(3,1)">全部信件</a> </li>
+                        <li> <a href="javascript:mailBox(4,1)">已发送信件</a> </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item ">
+                    <a href="javascript:log(1)"><i class="mdi mdi-file-outline"></i> 日志管理</a>
+                </li>
+
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="javascript:void(0)"><i class="mdi mdi-account-edit"></i> 用户管理</a>
+                    <ul class="nav nav-subnav">
+                        <li> <a href="javascript:accountApproval(1,1)">注册审批</a> </li>
+                        <li> <a href="javascript:accountApproval(2,1)">已审核用户</a> </li>
+                        <li> <a href="javascript:accountApproval(3,1)">用户中心</a> </li>
+                        <li> <a href="#" data-toggle="modal" data-target="#addAccount">新增账户</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="javascript:void(0)"><i class="mdi mdi-image-filter-frames"></i> 通知公告</a>
+                    <ul class="nav nav-subnav">
+                        <li> <a href="javascript:allNote(1)">通知管理</a> </li>
+                        <li> <a href="" data-toggle="modal" data-target="#barSendNote">发布通知</a> </li>
+                    </ul>
+                </li>
+
+
+
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="javascript:void(0)"><i class="mdi mdi-content-paste"></i> 订单中心</a>
+                    <ul class="nav nav-subnav" style="display: none;">
+                        <li> <a href="javascript:order(1,1)">未处理订单</a> </li>
+                        <li >
+                            <a href="javascript:order(2,1)">已处理订单</a>
+                        </li>
+                        <li> <a href="javascript:order(3,1)">全部订单</a> </li>
+                    </ul>
+                </li>
+
+
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="#"><i class="mdi mdi-key-variant"></i> 收费站管理</a>
+                    <ul class="nav nav-subnav" style="display: none;">
+                        <li> <a href="/admin/station/all">收费站管理</a> </li>
+                        <li ><a href="#" data-toggle="modal" data-target="#addStation">新增收费站</a> </li>
+                        <li> <a href="#" data-toggle="modal" data-target="#addRoad">新增线路</a> </li>
+                    </ul>
+                </li>
+
+
+
+                <li class="nav-item nav-item-has-subnav">
+                    <a href="#"><i class="mdi mdi-ear-hearing"></i> 紧急情况</a>
+                    <ul class="nav nav-subnav" style="display: none;">
+                        <li> <a href="javascript:emergentAll(1,1)">待处理</a> </li>
+                        <li >
+                            <a href="javascript:emergentAll(2,1)">已处理</a>
+                        </li>
+                        <li> <a href="javascript:emergentAll(3,1)">全部</a> </li>
+                    </ul>
+                </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </ul>
+        </nav>
+
+    </div>
+</aside>
+
+
+<!-- 发消息框-->
+<div class="modal fade" id="barSendMessage" tabindex="-1" role="dialog" aria-labelledby="barSendMessage" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">编辑消息</h4>
+            </div>
+            <form action="/admin/mail/send" id="sendMailbar" method="post" >
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label"><h5>选择收件人：</h5></label>
+                        <select class="form-control" id="selectbar" name="select" size="1">
+                            <option value="0">请选择</option>
+                            <option value="1">全体职工</option>
+                            <option value="2">全体客户</option>
+                            <option value="3">所有用户</option>
+                            <option value="4">自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="userEmail" type="hide">
+                        <label  class="control-label"><h5>用户/职工邮箱：</h5></label>
+                        <input class="form-control" id="myinput" name="myinput" >
+                    </div>
+                    <div class="form-group">
+                        <label  class="control-label"><h5>标题：</h5></label>
+                        <input class="form-control" id="titlebar" name="title">
+                        <label  class="control-label"><h5>消息内容：</h5></label>
+                        <textarea class="form-control" id="messagebar" name="message"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="BarSendMail()">发送消息</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 发通知框-->
+<div class="modal fade" id="barSendNote" tabindex="-1" role="dialog" aria-labelledby="barSendNote" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">发布通知</h4>
+            </div>
+            <form action="/admin/note/send" id="sendMail" method="post" >
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label  class="control-label"><h5>标题：</h5></label>
+                        <input class="form-control" id="title" name="title">
+                        <label  class="control-label"><h5>公告内容：</h5></label>
+                        <textarea class="form-control" id="message" name="message"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="SendNote()">发布通知</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- 修改密码-->
+<div class="modal fade" id="changepsk" tabindex="-1" role="dialog" aria-labelledby="changepsk" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">修改密码</h4>
+            </div>
+            <form action="/admin/note/send" id="changepwd" method="post" >
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label  class="control-label"><h5>原密码：</h5></label>
+                        <input class="form-control" id="pwd1" name="pwd1">
+                        <label  class="control-label"><h5>新密码：</h5></label>
+                        <input class="form-control" id="psk1" name="psk1">
+                        <label  class="control-label"><h5>再次输入新密码：</h5></label>
+                        <input class="form-control" id="psk2" name="psk2"></input>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="changepsk()">立即修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 新增用户、员工框-->
+<div class="modal fade" id="addAccount" tabindex="-1" role="dialog" aria-labelledby="addAccount" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">新增账户</h4>
+            </div>
+
+            <div class="modal-body">
+
+                    <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                        <li class="active"><a href="#user123" id="user-tab" role="tab" data-toggle="tab" aria-expanded="true">用户</a></li>
+                        <li class=""><a href="#employee" id="employee-tab" role="tab"  data-toggle="tab" aria-expanded="false">员工</a></li>
+                        <li><a style="color: #761c19">(*)为必填项</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+
+
+                        <div class="tab-pane fade active in"  id="user123" >
+
+                            <form action="#" method="post" id="addUser" name="addUser" class="edit-form">
+
+                                <div class="form-group">
+                                    <label for="email"><a style="color: #761c19">*</a>邮箱（账号）：</label>
+                                    <input class="form-control" type="email" id="Email" name="Email">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pwd"><a style="color: #761c19">*</a>密码（默认123456）:</label>
+                                    <input class="form-control" type="text" id="pwd" name="pwd" th:value="123456">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="license"><a style="color: #761c19">*</a>车牌号</label>
+                                    <input class="form-control" type="text" id="license" name="license" >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone"><a style="color: #761c19">*</a>电话</label>
+                                    <input class="form-control" type="text" id="phone" name="phone" >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="name">姓名</label>
+                                    <input class="form-control" type="text" id="name1" name="name">
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="sex">性别</label>
+                                    <input id="sexInput"  type="hidden">
+                                    <select class="form-control" id="sex" name="sex">
+                                        <option value="0">女</option>
+                                        <option value="1">男</option>
+                                    </select>
+                                </div>
+
+
+
+
+
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary m-r-5" onclick="addUserAccount()">确 定</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">返 回</button>
+                                </div>
+                            </form>
+
+
+                        </div>
+
+                        <div class="tab-pane fade" id="employee">
+
+
+                            <form action="#" method="post" id="addEmployee" name="addEmployee" class="edit-form">
+
+
+
+                                <div class="form-group">
+                                    <label for="email"><a style="color: #761c19">*</a>邮箱（账号）：</label>
+                                    <input class="form-control" type="email" id="sign" name="sign">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pwd"><a style="color: #761c19">*</a>密码（默认123456）:</label>
+                                    <input class="form-control" type="text" id="pwd2" name="pwd2" th:value="123456">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="station"><a style="color: #761c19">*</a>工作站点</label>
+                                    <select class="form-control" id="station" name="station">
+                                        <option value="-1" disabled="" selected="" hidden="">请选择</option>
+                                        <option value="0">连云港</option>
+                                        <option value="1">青岛</option>
+                                        <option value="2">日照</option>
+                                        <option value="3">临沂</option>
+                                        <option value="4">枣庄</option>
+                                        <option value="5">济宁</option>
+                                        <option value="6">泰安</option>
+                                        <option value="7">潍坊</option>
+                                        <option value="8">聊城</option>
+                                        <option value="9">菏泽</option>
+                                        <option value="10">商丘</option>
+                                        <option value="11">东营</option>
+                                        <option value="12">德州</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="name">姓名</label>
+                                    <input class="form-control" type="text" id="name2" name="name2">
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary m-r-5" onclick="addEmployeeAccount()">确 定</button>
+                                    <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                                </div>
+                            </form>
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增收费站框-->
+<div class="modal fade" id="addStation" tabindex="-1" role="dialog" aria-labelledby="addStation" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">新增收费站</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <div  class="tab-content">
+
+
+                    <div class="tab-pane fade active in" >
+
+                        <form action="#" method="post" id="addStationForm" name="addUser" class="edit-form">
+
+
+                            <div class="form-group">
+                                <label for="name">名称</label>
+                                <input class="form-control" type="text" id="name3" name="name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inter">介绍</label>
+                                <input class="form-control" type="text" id="inter" name="inter">
+                            </div>
+
+
+
+
+
+
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary m-r-5" onclick="addStation()">确 定</button>
+                                <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                            </div>
+                        </form>
+
+
+                    </div>
+
+
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增luxian-->
+<div class="modal fade" id="addRoad" tabindex="-1" role="dialog" aria-labelledby="addRoad" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">新增路线</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="myTabContent" class="tab-content">
+
+
+                    <div class="tab-pane fade active in" id="user">
+
+                        <form action="#" method="post" id="addRoads" name="addUser" class="edit-form">
+
+
+                            <div class="form-group">
+                                <select class="form-control" id="select" name="select" size="1" style="width: 30%;float: left">
+                                    <option value="-1" disabled selected hidden>从</option>
+                                    <option th:value="${top.getId()}" th:each="top:${station}">[[${top.getName()}]]</option>
+                                </select>
+
+                                <select class="form-control" id="select2" name="select2" size="1"  style="width: 30%;float: left" >
+                                    <option value="-1" disabled selected hidden>至</option>
+                                    <option th:value="${top.getId()}" th:each="top:${station}">[[${top.getName()}]]</option>
+                                </select>
+                                <br>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="name">名称</label>
+                                <input class="form-control" type="text" id="name" name="name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="name">里程（公里）</label>
+                                <input class="form-control" type="text" id="length" name="length">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="time">时间</label>
+                                <input class="form-control" type="text" id="time" name="time">
+                            </div>
+                            <div class="form-group">
+
+                                <label for="price">价格</label>
+                                <input class="form-control" type="text" id="price" name="price">
+                            </div>
+
+
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary m-r-5" onclick="addRoad()">确 定</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">返 回</button>
+                            </div>
+                        </form>
+
+
+                    </div>
+
+
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</body>
+</html>

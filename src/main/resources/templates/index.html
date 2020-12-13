@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>首页-实时显示</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link rel="stylesheet" th:href="@{/css/layui.css}">
+</head>
+<body class="layui-layout-body">
+<!-- 你的HTML代码 -->
+
+<!-- 导航栏-->
+<div th:replace="commons/bar::bar"></div>
+
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="layui-col-md4">
+                            <select name="interest" class="layui-select">
+                                <option value="">请选择</option>
+                                <option value="0">写作</option>
+                                <option value="1">阅读</option>
+                                <option value="2">游戏</option>
+                                <option value="3">音乐</option>
+                                <option value="4">旅行</option>
+                            </select>                        </div>
+                        <div class="layui-col-md4 layui-col-md-offset4">
+                            <button id="stateChange" onclick="stateChange()" class="layui-btn layui-btn-normal">
+                                可视化显示
+                            </button>
+                        </div>
+                    </div>
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--主要内容 -->
+<div style=" margin: 10px 10px;padding: 30px; background-color: #fdfff8;" id="text">
+    <div class="layui-row layui-col-space15">
+
+
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">实时数据-[[${sensors[0].getTime()}]]</div>
+                <div class="layui-card-body">
+                    <table class="layui-table" lay-even="" lay-skin="row">
+                        <colgroup>
+                            <col width="200">
+                            <col width="200">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>类别</th>
+                            <th>数据</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td >温度</td>
+                            <td >[[${sensors[0].getTemperature()}]]℃</td>
+                        </tr>
+                        <tr>
+                            <td >湿度</td>
+                            <td >[[${sensors[0].getHumidity()}]]%</td>
+                        </tr>
+                        <tr>
+                            <td >酸度</td>
+                            <td >[[${sensors[0].getAcidity()}]]%</td>
+                        </tr>
+                        <tr>
+                            <td >淀粉含量</td>
+                            <td >[[${sensors[0].getStarch()}]]%</td>
+                        </tr>
+                        <tr>
+                            <td >酒精含量</td>
+                            <td >[[${sensors[0].getAlcohol()}]]%</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">历史数据</div>
+                <div class="layui-card-body">
+
+                    <table class="layui-table" lay-even="" lay-skin="nob">
+                        <colgroup>
+                            <col width="130">
+                            <col width="100">
+                            <col width="100">
+                            <col width="100">
+                            <col width="100">
+                            <col>
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>温度</th>
+                            <th>湿度</th>
+                            <th>酸度</th>
+                            <th>淀粉</th>
+                            <th>酒精</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="history,num:${sensors}" th:if="${num.index != 0}">
+                            <td th:text="${#dates.format(history.getTime(), 'MM-dd hh:mm')}"></td>
+                            <td  >[[${history.getTemperature()}]]℃</td>
+                            <td  >[[${history.getHumidity()}]]%</td>
+                            <td  >[[${history.getAcidity()}]]%</td>
+                            <td  >[[${history.getStarch()}]]%</td>
+                            <td  >[[${history.getAlcohol()}]]%</td>
+                        </tr>
+
+
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div style="display: none; margin: 10px 10px;padding: 30px; background-color: #F2F2F2;" id="visualization">
+    <div class="layui-row layui-col-space15">
+
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">实时数据-[[${sensors[0].getTime()}]]</div>
+                <div class="layui-card-body">
+                    <canvas id="chart-1" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">历史数据</div>
+                <div class="layui-card-body">
+                    <canvas id="chart-2" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+<!-- 你的js -->
+<script th:src="@{/layui.js}"></script>
+<script th:src="@{/user.js}"></script>
+<script th:src="@{/Chart.js}"></script>
+<script th:src="@{/jquery.min.js}"></script>
+<script th:inline="javascript">
+
+
+
+    new Chart($("#chart-1"), {
+        type: 'bar',
+        data: {
+            labels: ["温度", "湿度",  "酒精", "酸度","淀粉"],
+            datasets: [{
+                label:'含量%',
+                backgroundColor: "rgba(51,202,185,0.5)",
+                borderColor: "rgba(0,0,0,0)",
+                hoverBackgroundColor: "rgba(51,202,185,0.7)",
+                hoverBorderColor: "rgba(0,0,0,0)",
+                data: [
+                    [[${sensors[0].getTemperature()}]],[[${sensors[0].getHumidity()}]],[[${sensors[0].getAlcohol()}]],[[${sensors[0].getAcidity()}]],[[${sensors[0].getStarch()}]]
+                ]
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+
+    new Chart($("#chart-2"), {
+        type: 'line',
+        data: {
+            labels: [
+                [[${#dates.format(sensors[1].getTime(), 'hh:mm')}]],[[${#dates.format(sensors[2].getTime(), 'hh:mm')}]],[[${#dates.format(sensors[3].getTime(), 'hh:mm')}]],[[${#dates.format(sensors[4].getTime(), 'hh:mm')}]],[[${#dates.format(sensors[5].getTime(), 'hh:mm')}]]
+            ],
+            datasets: [{
+                label: "温度",
+                fill: false,
+                borderWidth: 3,
+                pointRadius: 4,
+                borderColor: "#36a2eb",
+                backgroundColor: "#36a2eb",
+                pointBackgroundColor: "#36a2eb",
+                pointBorderColor: "#36a2eb",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#36a2eb",
+                data: [
+                    [[${sensors[1].getTemperature()}]],[[${sensors[2].getTemperature()}]],[[${sensors[3].getTemperature()}]],[[${sensors[4].getTemperature()}]],[[${sensors[5].getTemperature()}]]
+                ]
+            },{
+                label: "湿度",
+                fill: false,
+                borderWidth: 3,
+                pointRadius: 4,
+                borderColor: "#ebea31",
+                backgroundColor: "#ebea31",
+                pointBackgroundColor: "#ebea31",
+                pointBorderColor: "#ebea31",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#ebea31",
+                data: [
+                    [[${sensors[1].getHumidity()}]],[[${sensors[2].getHumidity()}]],[[${sensors[3].getHumidity()}]],[[${sensors[4].getHumidity()}]],[[${sensors[5].getHumidity()}]]
+
+                ]
+            },
+                {
+                label: "酒精",
+                fill: false,
+                borderWidth: 3,
+                pointRadius: 4,
+                borderColor: "#46eb6d",
+                backgroundColor: "#31eb75",
+                pointBackgroundColor: "#28eb4b",
+                pointBorderColor: "#86eb9d",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#86eb9d",
+                data: [
+                    [[${sensors[1].getAlcohol()}]],[[${sensors[2].getAlcohol()}]],[[${sensors[3].getAlcohol()}]],[[${sensors[4].getAlcohol()}]],[[${sensors[5].getAlcohol()}]]
+
+                ]
+            },
+            {
+                label: "酸度",
+                fill: false,
+                borderWidth: 3,
+                pointRadius: 4,
+                borderColor: "#ff6384",
+                backgroundColor: "#ff6384",
+                pointBackgroundColor: "#ff6384",
+                pointBorderColor: "#ff6384",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#ff6384",
+                data: [
+                    [[${sensors[1].getAcidity()}]],[[${sensors[2].getAcidity()}]],[[${sensors[3].getAcidity()}]],[[${sensors[4].getAcidity()}]],[[${sensors[5].getAcidity()}]]
+
+                ]
+            },
+            {
+                label: "淀粉",
+                fill: false,
+                borderWidth: 3,
+                pointRadius: 4,
+                borderColor: "#4047ff",
+                backgroundColor: "#4047ff",
+                pointBackgroundColor: "#4047ff",
+                pointBorderColor: "#4047ff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#4047ff",
+                data: [
+                    [[${sensors[1].getStarch()}]],[[${sensors[2].getStarch()}]],[[${sensors[3].getStarch()}]],[[${sensors[4].getStarch()}]],[[${sensors[5].getStarch()}]]
+
+                ]
+            }]
+        },
+        options: {}
+    });
+
+
+
+</script>
+
+
+
+</body>
+</html>

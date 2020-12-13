@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>收费站详情</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > <a href="/admin/station/all" style="color: #31708f">收费站管理</a> > 收费站详情
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+
+                        <!-- 搜索框-->
+                        <form class="pull-right search-bar" method="post" action="/admin/mail/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0标题 1内容  2发件人 -->
+
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">名称</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(0)" data-field="email">名称</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(1)" data-field="license">内容</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+
+                        <!-- xinxianlu按钮-->
+                        <div class="pull-right">&nbsp; <a class="btn btn-primary m-r-5 dropdown-toggle" href="#" data-toggle="modal" data-target="#addRoad"><i class="mdi mdi-plus"></i> 新增</a> &nbsp;</div>
+                        <!-- 搜索框发消息按钮-结束-->
+
+                        <!--功能-->
+                        <div class="pull-right">&nbsp; <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                        </div>
+
+
+                        <!--功能结束-->
+
+
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >收费站信息</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive"  >
+
+
+                            <div th:if="${isNull == 0}">
+                                <nav aria-label="breadcrumb">
+                                    &nbsp;<a href="#" class="btn btn-sm btn-info">简介：</a>
+                                    <ol class="breadcrumb">
+
+                                        <li class="breadcrumb-item " aria-current="page">
+                                            [[${details}]]
+                                        </li>
+                                    </ol>
+                                </nav>
+
+                                <nav aria-label="breadcrumb" th:if="${not(roads.isEmpty())}">
+                                    &nbsp;<a href="#" class="btn btn-sm btn-info">现存路线：</a>
+                                    <ol class="breadcrumb">
+                                        <table class="table table-striped">
+                                            <tbody><tr>
+                                                <th>序号</th>
+                                                <th>名称</th>
+                                                <th>全程</th>
+                                                <th>预估用时<button type="button" class="btn btn-sm " data-container="body" data-toggle="popover" data-placement="top" data-content="预估是指速度约80km/h，道路通畅情况下的估计时间，具体以实际情况为准，此处仅供参考." data-original-title="" title="" aria-describedby="popover564645">
+                                                    <li class="ion-help-circled" data-pack="default" data-tags="question, ?"></li>
+                                                </button></th>
+                                                <th>价格<button type="button" class="btn btn-sm " data-container="body" data-toggle="popover" data-placement="top" data-content="价格是指单价*路程，因单价存在波动，具体以实际情况为准，此处仅供参考." data-original-title="" title="" aria-describedby="popover564645">
+                                                    <li class="ion-help-circled" data-pack="default" data-tags="question, ?"></li>
+                                                </button></th>
+                                                <th>单价</th>
+                                                <th>操作</th>
+                                            </tr>
+                                            <tr  th:each="top,num:${roads}">
+                                                <td>[[${num.index+1}]]</td>
+                                                <td th:text="${top.getName()}">名称</td>
+                                                <td >约[[${top.getLength()}]]公里</td>
+                                                <td >约[[${top.getTime()}]]分钟</td>
+                                                <td >[[${top.getPrice()}]]元</td>
+                                                <td >[[${#numbers.formatDecimal(top.getPrice(),0,2)}/${#numbers.formatDecimal(top.getLength(),0,2)}]]元/公里</td>
+                                                <td><a  class="btn btn-xs btn-success btn-action"  th:data-whatever="${top.getName()}" data-toggle="modal" data-target="#editRoad" data-original-title="回复信息" ><i class="mdi mdi-table-edit"></i></a>
+                                                    <a th:href="'javascript:deleteRoad(\''+${top.getName()}+'\')'" class="btn btn-xs btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a></td>
+
+                                            </tr>
+
+                                            </tbody></table>
+                                    </ol>
+                                </nav>
+
+                                <div th:if="${(roads.isEmpty())}">
+
+
+                                    <div class="alert alert-danger" style="text-align: center" role="alert" >
+                                        <span>  此收费站没有路线信息！可以 <a href="#" data-toggle="modal" data-target="#addRoad">点击此处</a>添加。</span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div th:if="${isNull == 1}">
+
+                                <br><br><br><br><br><br>
+                                <div class="alert alert-danger" style="text-align: center" role="alert" >
+                                    <span>  没有更多信息啦！请去其他地方看看吧，或者 <a href="javascript:history.back();" class="alert-link">点击此处</a>返回上一页。</span>
+                                </div>
+                                <br><br><br><br><br><br>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- 编辑luxian-->
+            <div class="modal fade" id="editRoad" tabindex="-1" role="dialog" aria-labelledby="editRoad">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">修改路线</h4>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <div  class="tab-content">
+
+
+                                <div class="tab-pane fade active in">
+
+                                    <form action="#" method="post" id="editRoads" name="addUser" class="edit-form">
+
+
+                                        <div class="form-group">
+                                            <label for="name">里程（公里）</label>
+                                            <input class="form-control" type="text" id="length2" name="length">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="time">时间</label>
+                                            <input class="form-control" type="text" id="time2" name="time">
+                                        </div>
+                                        <div class="form-group">
+
+                                            <label for="price">价格</label>
+                                            <input class="form-control" type="text" id="price2" name="price">
+                                        </div>
+                                        <input type="hidden" id="editRoadName" name="editRoadName">
+
+
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary m-r-5" onclick="editRoad()">确 定</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">返 回</button>
+                                        </div>
+                                    </form>
+
+
+                                </div>
+
+
+
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+
+</body>
+</html>

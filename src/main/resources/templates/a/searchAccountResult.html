@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>检索账户</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" style="display: none;">
+                <div class="modal-dialog modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myLargeModalLabel">审核不通过</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form  action="/admin/account/fail" method="post">
+                                <div class="form-group">
+                                    <label   class="control-label"><h5 class="modal-email">账号</h5></label>
+                                    <label   class="control-label"><h5>选择不通过理由：</h5></label>
+                                    <select class="form-control" id="select" name="select" size="1" th:default="0">
+                                        <option value="0">不填写</option>
+                                        <option value="1">邮箱格式错误</option>
+                                        <option value="2">车牌号格式错误</option>
+                                        <option value="3">电话号码格式错误</option>
+                                        <option value="4">其他</option>
+                                    </select>
+                                </div>
+
+                                <div style="display: none">
+                                    <input  class="form-email" id="tag" name="tag" >
+                                    <input  id="pageType" name="pageType"  th:value=1 >
+                                    <input  id="page" name="page" value=1 >
+                                </div>
+                                <div class="form-group" id="otherReason">
+                                    <label  class="control-label"><h5>请输入其他理由：</h5></label>
+                                    <input  class="form-control" id="myinput" name="myinput" >
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                    <button type="submit" class="btn btn-primary">提交</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="container-fluid">
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > <a th:href="'javascript:accountApproval(1,1);'" style="color: #31708f">账户信息</a> > 检索结果
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+                        <form class="pull-right search-bar" method="post" action="/admin/account/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0 邮箱  1车牌  2电话 -->
+
+                                    <!-- 提交的删除用户信息的id-->
+                                    <input  name="accountDeleteId" id="accountDeleteId" type="hidden" >
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">邮箱</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchAccountType(0)" data-field="email">邮箱</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchAccountType(1)" data-field="license">车牌</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchAccountType(2)" data-field="phone">电话</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >检索结果</a> </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <span th:if="${not (result == null)}">检索[[${type}]]:“[[${keyword}]]”的结果如下：</span><br><br>
+
+                            <table class="table table-bordered" th:if="${not (result == null)}" >
+                                <thead>
+                                <tr>
+
+                                    <th>邮箱</th>
+                                    <th>车牌</th>
+                                    <th>注册日期</th>
+                                    <th>电话</th>
+                                    <th>姓名</th>
+                                    <th>性别</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="top,num:${result}">
+                                    <td th:text="${top.getEmial()}">邮箱</td>
+                                    <td th:text="${top.getLicense()}">车牌</td>
+                                    <td th:text="${#dates.format(top.getReTime(), 'yyyy-MM-dd hh:mm:ss')}" >注册日期</td>
+                                    <td th:text="${top.getPhone() }"> 电话 </td>
+                                    <td th:text="${top.getName()==null?'未填写': top.getName()}"> 姓名  </td>
+                                    <td th:text="${top.getSex()==1?'男':'女'}">性别</td>
+                                    <td> <span th:text="${state}" class="label label-warning" th:class="${top.getActive()==1?'label label-success':'label label-danger'}"> 状态 </span></td>
+                                    <td ><div class="btn-group">
+                                        <a class="btn btn-xs btn-default" th:href="'javascript:accountEdit('+${top.getId()}+')'"     title="编辑"><i class="mdi mdi-account-edit" ></i></a>
+                                        <a class="btn btn-xs btn-default" th:href="'javascript:accountPass(\''+${top.getEmial()}+'\',1,1);'"   th:if="${not (top.getActive()==1) }"  title="通过"><i class="mdi mdi-check" ></i></a>
+                                        <a class="btn btn-xs btn-default"  href="#"  data-toggle="modal"   data-target=".bs-example-modal-sm"  th:if="${not (top.getActive()==2) }" th:data-whatever="${top.getEmial()}" title="不通过"><i class="mdi mdi-window-close"></i></a>
+                                        <a class="btn btn-xs btn-default"  th:href="'javascript:accountDelete('+${top.getId()}+')'"  title="删除"><i class="mdi mdi-delete-forever"></i></a>                  </div></td>
+
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+                            <br><br><br><br><br>
+
+                            <div class="alert alert-danger" role="alert" th:if="${(result == null)}">
+                              <span>  未检索到[[${type}]]为“[[${keyword}]]”的有关信息！请检查输入是否正确，或者 <a th:href="'javascript:accountApproval(1,1);'" class="alert-link">点击此处</a>返回上一页。
+                                </span></div>
+                            <br><br><br><br><br>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>订单详情</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > <a href="javascript:order(1,1)" style="color: #31708f">订单</a> > 订单详情
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+
+
+
+                        <div class="toolbar-btn-action">
+                            <!-- 头部 根据此切换类型-->
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active"> <a th:href="'javascript:order(1,1);'" >订单详情</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive" th:if="${not(orderadvance == null)}">
+                            <table class="table table-bordered"  >
+                                <thead>
+                                <tr>
+                                    <th>车牌号</th>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>订单状态</th>
+                                    <th>入站</th>
+                                    <th >出站</th>
+                                    <th th:if="${not station2.equals('逃票')}">全程</th>
+                                    <th th:if="${not station2.equals('逃票')}">预估用时</th>
+                                    <th th:if="${not station2.equals('逃票')}">花费</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+
+                                <tr>
+                                    <td th:text="${orderadvance.getLicense()}">收件人</td>
+                                    <td th:text="${#dates.format(orderadvance.getStartTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                                    <td th:text="${#dates.format(orderadvance.getEndTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                                    <td th:text="${status==1?'已支付':'未支付'}">订单状态</td>
+                                    <td th:text="${station1} ">序号</td>
+                                    <td th:text="${station2} ">序号</td>
+                                    <td th:if="${not station2.equals('逃票')}" th:text="${road.getLength()}+'公里'">全程</td>
+                                    <td th:if="${not station2.equals('逃票')}" th:text="${road.getTime()} +'分钟'">用时</td>
+                                    <td th:if="${not station2.equals('逃票')}" th:text="${road.getPrice() +'元'} ">花费</td>
+                                    <td> <a th:href="'javascript:deleteOrder('+${orderadvance.getId()}+')'" class="btn btn-xs btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a>
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+
+
+                        <br><br>
+
+                    </div>
+
+                        <div class="table-responsive"  th:if="${(orderadvance == null)}" style="text-align: center">
+                            <br> <br> <br> <br> <br><br> <br>
+
+                            <div class="alert alert-danger" role="alert" style="text-align:center">
+                                此订单您没有权限查看或者已经被删除了！请<a href=" javascript:history.back(-2)">点此返回上一页</a>或者<a href="/admin/index">点此返回首页</a>.
+                            </div>
+
+
+                            <br> <br> <br> <br> <br><br> <br> <br> <br> <br>
+                        </div>
+                </div>
+
+            </div>
+
+            <!--回复消息框 -->
+            <div class="modal fade" id="mailReply" tabindex="-1" role="dialog" aria-labelledby="mailReply">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">快捷回复：</h4>
+                        </div>
+                        <form  action="/employee/mail/reply" id="reply" name="reply" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label  class="control-label"><h4></h4></label><br>
+                                    <label  class="control-label"><h5>标题：</h5></label>
+                                    <input class="form-control" id="mailReplyTitle" name="mailReplyTitle">
+                                    <label  class="control-label"><h5>消息内容：</h5></label>
+                                    <textarea class="form-control" id="mailReplyTxt" name="mailReplyTxt" ></textarea>
+                                </div>
+                                <input type="hidden" name="mailReplyId" id="mailReplyId" >
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" onclick="mailReply()" >发送</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+</body>
+</html>

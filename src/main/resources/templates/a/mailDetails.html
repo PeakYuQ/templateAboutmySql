@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>信件详情</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> >  <a href="javascript:mailBox(1,1)" style="color: #31708f">我的信箱</a> > 信件详情
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+
+                        <!-- 搜索框-->
+                        <form class="pull-right search-bar" method="post" action="/admin/mail/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0标题 1内容  2发件人 -->
+
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">标题</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(0)" data-field="email">标题</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(1)" data-field="license">内容</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(2)" data-field="phone">发件人</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(3)" data-field="phone">收件人</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+                        <div class="pull-right">&nbsp;<button class="btn btn-info dropdown-toggle" data-toggle="modal" data-target="#barSendMessage">发信息</button> &nbsp;</div>
+                        <!-- 搜索框发消息按钮-结束-->
+
+
+
+                        <!--功能-->
+                        <div class="pull-right" th:if="${not (detial == null)}">&nbsp; <a th:if="${not detial.getrole().equals('admin')}" data-toggle="modal" data-target="#mailReplyDetails" class="btn btn-success btn-action"   data-original-title="回复信息" ><i class="mdi mdi-email-outline"></i></a>
+                            <a href="#"   data-toggle="modal" data-target="#mailEdit" id="notify" class="btn btn-info btn-action"  title="编辑" data-original-title="编辑"><i class="mdi mdi-border-color"></i></a>
+                            <a th:href="'javascript:deleteMail('+${detial.getId()}+')'" class="btn  btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a>
+                            <button type="button" class="btn btn-default" onclick="javascript:history.back(-1);return false;">返 回</button>
+                        </div>
+
+
+                        <!--功能结束-->
+
+
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >信件详情</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive" th:if="${not (detial == null)}">
+
+                            <!-- 隐藏的input 用于删除信件-->
+                            <input  name="deleteMailId" id="deleteMailId" type="hidden">
+
+
+                            <h2  th:text="${detial.getTitle()}">标题</h2>
+                            <span>时间:[[${#dates.format(detial.getTime(), 'yyyy-MM-dd hh:mm:ss')}]] 发送人:[[${detial.getrole()}]]</span>
+
+                            <hr>
+                            <p class="lead" th:utext="${detial.getTxt()}"></p>
+
+                            <br> <br> <br> <br> <br><br> <br> <br> <br> <br>
+                        </div>
+
+                        <div class="table-responsive"  th:if="${(detial == null)}" style="text-align: center">
+                            <br> <br> <br> <br> <br><br> <br>
+
+                            <div class="alert alert-danger" role="alert" style="text-align:center">
+                                此消息您没有权限查看或者已经被删除了！请<a href=" javascript:history.back(-2)">点此返回上一页</a>或者<a href="/employee/index">点此返回首页</a>.
+                            </div>
+
+
+                            <br> <br> <br> <br> <br><br> <br> <br> <br> <br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!--编辑消息框 -->
+            <div class="modal fade" id="mailEdit" tabindex="-1" role="dialog" aria-labelledby="mailEdit">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">编辑消息</h4>
+                        </div>
+                        <form  action="/admin/mail/edit" id="edit" name="edit" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label  class="control-label"><h4>请修改需要修改的内容</h4></label><br>
+                                    <label  class="control-label"><h5>新标题：</h5></label>
+                                    <input class="form-control" id="mailTitle" name="mailTitle" th:value="${detial.getTitle()}">
+                                    <label  class="control-label"><h5>新消息内容：</h5></label>
+                                    <textarea class="form-control" id="mailTxt" name="mailTxt" th:text="${detial.getTxt()}"></textarea>
+                                </div>
+                                <input type="hidden" name="mailId" id="mailId" th:value="${detial.getId()}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" id="submit" onclick="mailEdit()">发送</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--回复消息框 -->
+            <div class="modal fade" id="mailReplyDetails" tabindex="-1" role="dialog" aria-labelledby="mailReply">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">快捷回复：</h4>
+                        </div>
+                        <form  action="/admin/mail/reply" id="reply" name="reply" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label  class="control-label"><h4></h4></label><br>
+                                    <label  class="control-label"><h5>标题：</h5></label>
+                                    <input class="form-control" id="mailReplyTitle" name="mailReplyTitle">
+                                    <label  class="control-label"><h5>消息内容：</h5></label>
+                                    <textarea class="form-control" id="mailReplyTxt" name="mailReplyTxt" ></textarea>
+                                </div>
+                                <input type="hidden" name="mailReplyId" id="mailReplyId" th:value="${detial.getId()}" >
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" onclick="mailReply()" >发送</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+
+</body>
+</html>

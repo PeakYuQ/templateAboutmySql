@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>检索公告</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > <a href="/admin/note/all" style="color: #31708f">通知公告</a> > 检索公告
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+                        <form class="pull-right search-bar" method="post" action="/admin/note/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0标题 1内容  2发件人 3收件人 -->
+
+                                    <!-- 隐藏的input 用于删除信件-->
+                                    <input  name="deleteMailId" id="deleteMailId" type="hidden">
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">标题</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(0)" data-field="email">标题</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(1)" data-field="license">内容</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(2)" data-field="phone">发布者</a> </li>
+
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+                        <div class="pull-right">&nbsp;<button class="btn btn-info dropdown-toggle" data-toggle="modal" data-target="#barSendNote">发新通知</button> &nbsp;</div>
+                        <div class="toolbar-btn-action">
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="active" > <a href="#" >检索结果</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <span th:if="${not message.getList().isEmpty()}">检索[[${type}]]:“[[${keyword}]]”的结果如下：</span><br><br>
+
+                            <table class="table table-bordered"  th:if="${not message.getList().isEmpty()}">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>标题</th>
+                                    <th>内容</th>
+                                    <th>发布时间</th>
+                                    <th>发布者</th>
+                                    <th>操作</th>
+                                    <th>详情</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <tr th:each="top,num:${message.getList()}">
+                                    <td th:text="${num.index+1} ">序号</td>
+                                    <td th:text="${top.getTitle()}">标题</td>
+                                    <td th:text="${top.getTxt()}">内容</td>
+                                    <td th:text="${#dates.format(top.getTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                                    <td th:text="${top.getrole()}">发布者</td>
+                                    <td>
+                                        <a th:href="'javascript:deleteMail('+${top.getId()}+')'" class="btn btn-xs btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a></td>
+
+                                    <td><button  th:onclick="'noteDetails('+${top.getId()}+')'" class="btn btn-xs btn-action btn-info">查看</button></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <span th:if="${message.totalPage > 1}" style="float: right; margin-right: 30px;">共[[${message.totalCount}]]条记录&nbsp;&nbsp;共[[${message.totalPage}]]页&nbsp;&nbsp;
+              当前第[[${message.currentPage}]]页</span>
+                            <div  th:if="${message.getList().isEmpty()}" style="align-content: center">
+                                <br> <br> <br> <br><br> <br>
+                                <div class="alert alert-danger" role="alert" style="text-align:center">
+                                    <span>  未检索到[[${type}]]为“[[${keyword}]]”的有关信息！请检查输入是否正确，或者 <a th:href="'javascript:mailBox(1,1);'" class="alert-link">点击此处</a>返回信箱。
+                                </span>
+                                </div>
+                                <br> <br> <br> <br><br> <br>
+                             </div>
+
+                            </div>
+                        <ul class="pagination" style="float: right; margin-right: 30px;" th:if="${message.totalPage > 1}">
+                            <li><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\',1)'">首页</a></li>
+                            <li th:class="${message.currentPage>1?'':'disabled'}"><span th:if="${message.currentPage==1}">上一页</span><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage-1}+')'" th:if="${message.currentPage>1}">上一页</a></li>
+                            <li th:if="${(message.currentPage-2)>=1}" ><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage-2}+')'" th:text="${message.currentPage-2}">1</a></li>
+                            <li th:if="${(message.currentPage-1)>=1}"><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage-1}+')'" th:text="${message.currentPage-1}">2</a></li>
+                            <li class="active"><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage}+')'" th:text="${message.currentPage}">3</a></li>
+                            <li th:if="${(message.currentPage+1)<=message.totalPage}"><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage+1}+')'" th:text="${message.currentPage+1}">4</a></li>
+                            <li th:if="${(message.currentPage+2)<=message.totalPage}"><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage+2}+')'" th:text="${message.currentPage+2}">5</a></li>
+                            <li th:class="${message.currentPage<message.totalPage?'':'disabled'}"><span th:if="${message.currentPage==message.totalPage}">下一页</span><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.currentPage+1}+')'" th:if="${message.currentPage<message.totalPage}">下一页</a></li>
+                            <li><a th:href="'javascript:searchNote(\''+${type}+'\',\''+${keyword}+'\','+${message.totalPage}+')'">尾页</a></li>
+                        </ul>
+                        </div>
+<br><br><br><br>
+
+                    </div>
+                </div>
+
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+</body>
+</html>

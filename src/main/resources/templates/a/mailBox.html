@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>信箱</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+<body class="lyear-layout-sidebar-close" th:onload="'chekError('+${type}+','+${message.totalPage}+','+${message.currentPage}+')'">
+<div class="lyear-layout-web">
+    <div class="lyear-layout-container">
+
+        <!--  引入重复片段-->
+        <div th:replace="a/commons/bars::admin"></div>
+        <!--页面主要内容-->
+        <main class="lyear-layout-content">
+
+            <div class="container-fluid">
+
+                <div class="alert alert-info" role="alert">
+                    当前位置： <a href="/admin/index" style="color: #31708f">首页</a> > 我的信箱
+                </div>
+
+                <div class="card">
+                    <div class="card-toolbar clearfix">
+
+                        <!-- 搜索框-->
+                        <form class="pull-right search-bar" method="post" action="/admin/mail/search" role="form">
+                            <div class="input-group">
+                                <div class="input-group-btn">
+
+                                    <!-- 提交内容-->
+                                    <input  name="type" id="type" type="hidden" value="0">
+                                    <!--0标题 1内容  2发件人 3收件人 -->
+
+                                    <button class="btn btn-default dropdown-toggle" id="search-btn" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <span id="display">标题</span>    <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(0)" data-field="email">标题</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(1)" data-field="license">内容</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(2)" data-field="phone">发件人</a> </li>
+                                        <li> <a tabindex="-1" href="javascript:changeSearchMailType(3)" data-field="phone">收件人</a> </li>
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" value="" name="keyword" placeholder="请输入关键词">
+                                <button class="btn btn-default" type="submit"><i class="mdi mdi-account-search"></i></button>
+                            </div>
+                        </form>
+                        <!-- 发消息按钮-->
+                        <div class="pull-right">&nbsp;<button class="btn btn-info dropdown-toggle" data-toggle="modal" data-target="#barSendMessage">发信息</button> &nbsp;</div>
+                        <!-- 搜索框发消息按钮-结束-->
+
+                        <div class="toolbar-btn-action">
+                            <!-- 头部 根据此切换类型-->
+                            <ul class="nav nav-tabs page-tabs">
+                                <li class="" th:class="${type==1?'active':''}"> <a th:href="'javascript:mailBox(1,1);'" >未读信息</a> </li>
+                                <li class="" th:class="${type==2?'active':''}"> <a th:href="'javascript:mailBox(2,1);'" >收件箱</a> </li>
+                                <li class="" th:class="${type==3?'active':''}"> <a th:href="'javascript:mailBox(3,1);'" >全部信息</a> </li>
+                                <li class="" th:class="${type==4?'active':''}"> <a th:href="'javascript:mailBox(4,1);'" >已发送信息</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered"  th:if="${not message.getList().isEmpty()}">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>发件人</th>
+                                    <th>收件人</th>
+                                    <th>标题</th>
+                                    <th>发送时间</th>
+                                    <th>操作</th>
+                                    <th>详情</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- 隐藏的input 用于删除信件-->
+                                <input  name="deleteMailId" id="deleteMailId" type="hidden">
+
+                                <tr th:each="top,num:${message.getList()}">
+                                    <td th:text="${num.index+1} ">序号</td>
+                                    <td th:text="${top.getrole()}">发件人</td>
+                                    <td th:text="${top.getEmail()}">收件人</td>
+                                    <td th:text="${top.getTitle()}">标题</td>
+                                    <td th:text="${#dates.format(top.getTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                                    <td><a  class="btn btn-xs btn-success btn-action"  th:data-whatever="${top.getId()}" data-toggle="modal" data-target="#mailReply" th:if="${not top.getrole().equals('admin')}" data-original-title="回复信息" ><i class="mdi mdi-email-outline"></i></a>
+                                        <a th:href="'javascript:deleteMail('+${top.getId()}+')'" class="btn btn-xs btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a></td>
+
+                                    <td><button  th:onclick="'mailDetails('+${top.getId()}+')'" class="btn btn-xs btn-action btn-secondary">查看</button></td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <span style="float: right; margin-right: 30px;" th:if="${message.totalPage > 1}" >共[[${message.totalCount}]]条记录&nbsp;&nbsp;共[[${message.totalPage}]]页&nbsp;&nbsp;
+              当前第[[${message.currentPage}]]页</span>
+                            <div  th:if="${message.getList().isEmpty()}" style="align-content: center">
+                                <br> <br> <br> <br><br> <br>
+                                <div class="alert alert-danger" role="alert" style="text-align:center">
+                                    此处暂时没有信息！
+                                </div>
+                                <br> <br> <br> <br><br> <br>
+                            </div>
+                        </div>
+
+                        <ul class="pagination" style="float: right; margin-right: 30px;" th:if="${message.totalPage > 1}">
+                            <li><a th:href="'javascript:mailBox('+${type}+',1)'">首页</a></li>
+                            <li th:class="${message.currentPage>1?'':'disabled'}"><span th:if="${message.currentPage==1}">上一页</span><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage-1}+')'" th:if="${message.currentPage>1}">上一页</a></li>
+                            <li th:if="${(message.currentPage-2)>=1}" ><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage-2}+')'" th:text="${message.currentPage-2}">1</a></li>
+                            <li th:if="${(message.currentPage-1)>=1}"><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage-1}+')'" th:text="${message.currentPage-1}">2</a></li>
+                            <li class="active"><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage}+')'" th:text="${message.currentPage}">3</a></li>
+                            <li th:if="${(message.currentPage+1)<=message.totalPage}"><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage+1}+')'" th:text="${message.currentPage+1}">4</a></li>
+                            <li th:if="${(message.currentPage+2)<=message.totalPage}"><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage+2}+')'" th:text="${message.currentPage+2}">5</a></li>
+                            <li th:class="${message.currentPage<message.totalPage?'':'disabled'}"><span th:if="${message.currentPage==message.totalPage}">下一页</span><a th:href="'javascript:mailBox('+${type}+','+${message.currentPage+1}+')'" th:if="${message.currentPage<message.totalPage}">下一页</a></li>
+                            <li><a th:href="'javascript:mailBox('+${type}+','+${message.totalPage}+')'">尾页</a></li>
+                        </ul>
+                        <br><br>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!--回复消息框 -->
+            <div class="modal fade" id="mailReply" tabindex="-1" role="dialog" aria-labelledby="mailReply">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">快捷回复：</h4>
+                        </div>
+                        <form  action="/admin/mail/reply" id="reply" name="reply" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label  class="control-label"><h4></h4></label><br>
+                                    <label  class="control-label"><h5>标题：</h5></label>
+                                    <input class="form-control" id="mailReplyTitle" name="mailReplyTitle">
+                                    <label  class="control-label"><h5>消息内容：</h5></label>
+                                    <textarea class="form-control" id="mailReplyTxt" name="mailReplyTxt" ></textarea>
+                                </div>
+                                <input type="hidden" name="mailReplyId" id="mailReplyId" >
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" class="btn btn-primary" onclick="mailReply()" >发送</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+        <!--End 页面主要内容-->
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+</body>
+</html>

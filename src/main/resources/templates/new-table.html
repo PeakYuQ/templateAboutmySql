@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>标题</title>
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+    <link rel="stylesheet" th:href="@{/css/layui.css}">
+</head>
+<body class="layui-layout-body">
+<!-- 你的HTML代码 -->
+
+<!-- 导航栏-->
+<div th:replace="commons/bar::bar"></div>
+
+
+<div class="layui-fluid" style="padding: 30px; background-color: #F2F2F2;">
+    <div class="layui-row layui-col-space15">
+
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">标题</div>
+                <div class="layui-card-body">
+
+                    <table class="layui-table " >
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>发件人</th>
+                            <th>收件人</th>
+                            <th>标题</th>
+                            <th>发送时间</th>
+                            <th>操作</th>
+                            <th>详情</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        <tr th:each="top,num:${message}">
+                            <td th:text="${num.index+1} ">序号</td>
+                            <td th:text="${top.getrole()}">发件人</td>
+                            <td th:text="${top.getEmail()}">收件人</td>
+                            <td th:text="${top.getTitle()}">标题</td>
+                            <td th:text="${#dates.format(top.getTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                            <td><a  class="btn btn-xs btn-success btn-action"  th:data-whatever="${top.getId()}" data-toggle="modal" data-target="#mailReply" th:if="${not top.getrole().equals('admin')}" data-original-title="回复信息" ><i class="mdi mdi-email-outline"></i></a>
+                                <a th:href="'javascript:deleteMail('+${top.getId()}+')'" class="btn btn-xs btn-danger btn-action" data-toggle="tooltip" title="" data-original-title="删除"><i class="mdi mdi-window-close"></i></a></td>
+
+                            <td><button  th:onclick="'mailDetails('+${top.getId()}+')'" class="btn btn-xs btn-action btn-secondary">查看</button></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 你的js -->
+<script th:src="@{/layui.js}"></script>
+<script th:src="@{/user.js}"></script>
+
+</body>
+</html>

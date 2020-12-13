@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>后台-首页</title>
+<link rel="icon" th:href="@{/favicon.ico}" type="image/ico">
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+<link th:href="@{/css/materialdesignicons.min.css}" rel="stylesheet">
+<link th:href="@{/css/style.min.css}" rel="stylesheet">
+  <link th:href="@{/js/jconfirm/jquery-confirm.min.css}" rel="stylesheet">
+</head>
+
+<body class="lyear-layout-sidebar-close">
+<div class="lyear-layout-web">
+  <div class="lyear-layout-container">
+
+    <!--  引入重复片段-->
+    <div th:replace="a/commons/bars::admin"></div>
+
+
+    <!--页面主要内容-->
+    <main class="lyear-layout-content">
+
+      
+      <div class="container-fluid">
+        
+        <div class="row">
+          <!-- 四大金刚-->
+          <div class="col-sm-6 col-lg-3">
+            <div class="card bg-primary">
+              <div class="card-body clearfix">
+                <div class="pull-right"><a href="/admin/note/all">
+                  <p class="h6 text-white m-t-0">通知公告</p>
+                  <p class="h3 text-white m-b-0">102,125.00</p></a>
+                </div>
+                <div class="pull-left"> <span  onclick="allNote(1)"  class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-image-filter-frames fa-1-5x"></i></span> </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-sm-6 col-lg-3">
+            <div class="card bg-danger">
+              <div class="card-body clearfix">
+                <div class="pull-right">
+                  <p class="h6 text-white m-t-0"><a href="javascript:log(1)" style="color: rgb(246,242,242)">查看日志</a></p>
+                  <p class="h3 text-white m-b-0">920,000</p>
+                </div>
+                <div class="pull-left">
+                <span type="button" onclick="log(1)" class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-note-text fa-1-5x"></i></span> </div>
+            </div>
+            </div>
+          </div>
+          
+          <div class="col-sm-6 col-lg-3">
+            <div class="card bg-success">
+              <div class="card-body clearfix">
+                <div class="pull-right">
+                  <p class="h6 text-white m-t-0">用户管理</p>
+                  <p class="h3 text-white m-b-0">34,000</p>
+                </div>
+                <div class="pull-left"> <span type="button" onclick="accountApproval(1,1)" class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-account-check fa-1-5x"></i></span> </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-sm-6 col-lg-3">
+            <div class="card bg-purple">
+              <div class="card-body clearfix">
+                <div class="pull-right">
+                  <p class="h6 text-white m-t-0">信件管理</p>
+                  <p class="h3 text-white m-b-0">153 条</p>
+                </div>
+                <div class="pull-left"> <span type="button" onclick="mailBox(1,1)" class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-comment-outline"></i> </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <!-- 紧急处理-->
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+
+                <h4>紧急处理</h4>
+                <div class="pull-right">
+                <a href="Javascript:emergentAll(1,1)">查看所有</a></div>
+                </div>
+              <div class="card-body">
+
+                <ul class="list-group" th:if="${not (emergent.isEmpty())}" >
+
+                  <li class="list-group-item" th:each="top:${emergent}">
+                    <span class="badge" th:text="${#dates.format(top.getTime(), 'MM-dd hh:mm')}"></span>
+                    <a th:href="'javascript:emergentDetails('+${top.getId()}+');'" style="color: #0c0c0c">
+                      [[${top.getTitle()}]] -- [[${top.getTxt()}]]
+                    </a>
+                  </li>
+
+                </ul>
+
+                <ul class="list-group" th:if="${(emergent.isEmpty())}" >
+                <br>  <br>  <br>
+                  <div class="alert alert-info" role="alert" style="text-align:center">
+                    暂无紧急消息
+                  </div>
+                <br>  <br>  <br>
+                </ul>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- 日志信息-->
+          <div class="col-lg-6"> 
+            <div class="card">
+              <div class="card-header">
+                <h4>新增日志记录</h4>
+                <div class="pull-right">
+                  <a href="Javascript:log(1)">查看所有</a></div>
+
+              </div>
+              <div class="card-body">
+                <table class="table table-bordered"  th:if="${not logs.isEmpty()}">
+                  <thead>
+                  <tr>
+
+                    <th>时间</th>
+                    <th>操作人</th>
+                    <th>描述</th>
+
+                  </tr>
+                  </thead>
+                  <tbody>
+
+                  <tr th:each="top:${logs}">
+
+                    <td th:text="${#dates.format(top.getTime(), 'MM-dd hh:mm')}">发送时间</td>
+                    <td th:text="${top.getOperator()}">操作人</td>
+                    <td th:text="${top.getOperate()}">描述</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+                <ul class="list-group" th:if="${(logs.isEmpty())}" >
+                  <br>  <br>  <br>
+                  <div class="alert alert-info" role="alert" style="text-align:center">
+                    暂无日志记录
+                  </div>
+                  <br>  <br>  <br>
+                </ul>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <!-- 新增订单-->
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <h4> 新增订单</h4>
+                <div class="pull-right">
+                  <a href="Javascript:order(1,1)">查看所有</a></div>
+
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" th:if="${!orderadvance.getList().isEmpty()}">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>车牌号</th>
+                        <th>开始时间</th>
+                        <th>结束时间</th>
+                        <th>详情</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="top,num:${orderadvance.getList()}">
+                      <td th:text="${num.index+1} ">序号</td>
+                      <td th:text="${top.getLicense()}">收件人</td>
+                      <td th:text="${#dates.format(top.getStartTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                      <td th:text="${#dates.format(top.getEndTime(), 'yyyy-MM-dd hh:mm:ss')}">发送时间</td>
+                      <td> <button  th:onclick="'orderDetails('+${top.getId()}+')'" class="btn btn-xs btn-action btn-secondary">查看</button></td>
+                    </tr>
+                    </tbody>
+                  </table>
+
+                  <ul class="list-group" th:if="${(orderadvance.getList().isEmpty())}" >
+                    <br>  <br>  <br>
+                    <div class="alert alert-info" role="alert" style="text-align:center">
+                      暂无订单记录
+                    </div>
+                    <br>  <br>  <br>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+
+
+
+        <!-- 发消息框-->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="exampleModalLabel">编辑消息</h4>
+            </div>
+            <form action="/admin/mail/send" id="sendMail" method="post" >
+              <div class="modal-body">
+                <div class="form-group">
+                  <label class="control-label"><h5>选择收件人：</h5></label>
+                  <select class="form-control" id="select" name="select" size="1">
+                    <option value="0">请选择</option>
+                    <option value="1">全体职工</option>
+                    <option value="2">全体客户</option>
+                    <option value="3">所有用户</option>
+                    <option value="4">自定义</option>
+                  </select>
+                </div>
+                <div class="form-group" id="userEmail" type="hide">
+                  <label  class="control-label"><h5>用户/职工邮箱：</h5></label>
+                  <input class="form-control" id="myinput" name="myinput" >
+                </div>
+                <div class="form-group">
+                  <label  class="control-label"><h5>标题：</h5></label>
+                  <input class="form-control" id="title" name="title">
+                  <label  class="control-label"><h5>消息内容：</h5></label>
+                  <textarea class="form-control" id="message" name="message"></textarea>
+                </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="adminSendMail()">发送消息</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+  </main>
+    <!--End 页面主要内容-->
+  </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/perfect-scrollbar.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/main.min.js}"></script>
+<!--javascript-->
+<script type="text/javascript" th:src="@{/js/admin.js}"></script>
+<!-- 通知消息-->
+<script type="text/javascript" th:src="@{/js/bootstrap-notify.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/lightyear.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.form.js}"></script>
+<script type="text/javascript" th:src="@{/js/jconfirm/jquery-confirm.min.js}"></script>
+
+</body>
+</html>
